@@ -8246,7 +8246,7 @@
 	    key: 'resize',
 	    value: function resize() {
 	      this.screen.resize();
-	      this.renderer.setSize(GET_WIDTH(), GET_HEIGHT);
+	      this.renderer.setSize(GET_WIDTH(), GET_HEIGHT());
 	    }
 	  }, {
 	    key: 'update',
@@ -50077,7 +50077,7 @@
 	  }, {
 	    key: 'resize',
 	    value: function resize() {
-	      this.camera.aspect = (0, _game.GET_WIDTH)() / _game.GET_HEIGHT;
+	      this.camera.aspect = (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)();
 	      this.camera.updateProjectionMatrix();
 	    }
 	  }]);

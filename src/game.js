@@ -25,7 +25,7 @@ class Game {
 
   resize() {
     this.screen.resize();
-    this.renderer.setSize(GET_WIDTH(), GET_HEIGHT);
+    this.renderer.setSize(GET_WIDTH(), GET_HEIGHT());
   }
 
   update() {

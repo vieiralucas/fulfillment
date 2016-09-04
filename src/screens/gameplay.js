@@ -31,7 +31,7 @@ class GamePlay {
   }
 
   resize() {
-    this.camera.aspect = GET_WIDTH() / GET_HEIGHT;
+    this.camera.aspect = GET_WIDTH() / GET_HEIGHT();
     this.camera.updateProjectionMatrix();
   }
 }
