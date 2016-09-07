@@ -39,7 +39,7 @@ class Game {
   }
 }
 
-export const GET_WIDTH = () => window.innerWidth * .9;
-export const GET_HEIGHT = () => window.innerHeight * .9;
+export const GET_WIDTH = () => window.innerWidth * .99;
+export const GET_HEIGHT = () => window.innerHeight * .99;
 
 export default Game;
