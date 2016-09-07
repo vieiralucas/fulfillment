@@ -6,6 +6,7 @@ import { GET_WIDTH, GET_HEIGHT } from '../game';
 import Player from '../entities/player';
 import Floor from '../entities/floor';
 import Wall from '../entities/wall';
+import Score from '../entities/score';
 
 class GamePlay {
   constructor() {
@@ -18,6 +19,7 @@ class GamePlay {
     this.player = new Player(this.scene, 10, 0, 200);
     this.floor = new Floor(this.scene, 0, -20, -400);
     this.wall = new Wall(this.scene, 0, 0, -300, this);
+    this.score = new Score(this.scene);
   }
 
   update() {
@@ -76,11 +78,24 @@ class GamePlay {
     }
 
     success.forEach(s => s.setHex(0x00ff00));
-    this.wall.fullfiled = success.length;
+    this.wall.filled = success.length;
   }
 
   wallRestart() {
     this.player.restartColor();
+
+    if (!this.wall.hit) {
+      if (this.wall.holes <= this.wall.filled) {
+        this.player.combo += 1;
+      } else {
+        this.player.combo = 1;
+      }
+
+      const scoreMade = Math.ceil(Math.pow(2, this.wall.filled) * this.wall.speed * this.player.combo);
+      this.score.incrementBy(scoreMade);
+    } else {
+      this.player.combo = 1;
+    }
   }
 
   render(renderer) {
@@ -90,6 +105,7 @@ class GamePlay {
   resize() {
     this.camera.aspect = GET_WIDTH() / GET_HEIGHT();
     this.camera.updateProjectionMatrix();
+    this.score.resize();
   }
 }
 

@@ -18,6 +18,7 @@ class Player {
   constructor(scene, x, y, z) {
     this.depth = pieceDepth;
     this.scene = scene;
+    this.combo = 1;
     this.growing = false;
     this.moving = false;
     this.pieces = [new Piece(x, y, z, BOTTOM)];

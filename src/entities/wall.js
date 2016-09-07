@@ -8,6 +8,7 @@ const pieceDepth = 20;
 
 class Wall {
   constructor(scene, x, y, z, gameplay) {
+    this.startZ = z;
     this.gameplay = gameplay;
     this.scene = scene;
     this.wallRepr = this.generateRepr();
@@ -18,6 +19,7 @@ class Wall {
     this.pieces.forEach(piece => this.scene.add(piece));
     this.hit = false;
     this.holes = 0;
+    this.filled = 0;
   }
 
   createPieces() {
@@ -61,8 +63,23 @@ class Wall {
   }
 
   restart() {
+    this.gameplay.wallRestart();
+
+    if (this.hit) {
+      this.position.z += pieceDepth * 4;
+    } else {
+      if (this.holes === this.filled) {
+        this.position.z -= pieceDepth * 4;
+      }
+    }
+
+    if (this.position.z < this.startZ) {
+      this.position.z = this.startZ;
+    }
+
     this.hit = false;
     this.holes = 0;
+    this.filled = 0;
     this.wallRepr = this.generateRepr();
     this.pieces.forEach(piece => {
       this.scene.remove(piece);
@@ -70,10 +87,8 @@ class Wall {
     });
     this.pieces = this.createPieces();
     this.pieces.forEach(piece => this.scene.add(piece));
-    if (this.hit) {
-      this.position.z += pieceDepth * 4;
-    }
-    this.gameplay.wallRestart();
+
+    this.speed *= 1.02;
   }
 
   generateRepr() {

@@ -50043,6 +50043,10 @@
 	
 	var _wall2 = _interopRequireDefault(_wall);
 	
+	var _score = __webpack_require__(305);
+	
+	var _score2 = _interopRequireDefault(_score);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -50060,6 +50064,7 @@
 	    this.player = new _player2.default(this.scene, 10, 0, 200);
 	    this.floor = new _floor2.default(this.scene, 0, -20, -400);
 	    this.wall = new _wall2.default(this.scene, 0, 0, -300, this);
+	    this.score = new _score2.default(this.scene);
 	  }
 	
 	  _createClass(GamePlay, [{
@@ -50125,12 +50130,25 @@
 	      success.forEach(function (s) {
 	        return s.setHex(0x00ff00);
 	      });
-	      this.wall.fullfiled = success.length;
+	      this.wall.filled = success.length;
 	    }
 	  }, {
 	    key: 'wallRestart',
 	    value: function wallRestart() {
 	      this.player.restartColor();
+	
+	      if (!this.wall.hit) {
+	        if (this.wall.holes <= this.wall.filled) {
+	          this.player.combo += 1;
+	        } else {
+	          this.player.combo = 1;
+	        }
+	
+	        var scoreMade = Math.ceil(Math.pow(2, this.wall.filled) * this.wall.speed * this.player.combo);
+	        this.score.incrementBy(scoreMade);
+	      } else {
+	        this.player.combo = 1;
+	      }
 	    }
 	  }, {
 	    key: 'render',
@@ -50142,6 +50160,7 @@
 	    value: function resize() {
 	      this.camera.aspect = (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)();
 	      this.camera.updateProjectionMatrix();
+	      this.score.resize();
 	    }
 	  }]);
 	
@@ -50187,6 +50206,7 @@
 	
 	    this.depth = pieceDepth;
 	    this.scene = scene;
+	    this.combo = 1;
 	    this.growing = false;
 	    this.moving = false;
 	    this.pieces = [new Piece(x, y, z, BOTTOM)];
@@ -50570,6 +50590,7 @@
 	
 	    _classCallCheck(this, Wall);
 	
+	    this.startZ = z;
 	    this.gameplay = gameplay;
 	    this.scene = scene;
 	    this.wallRepr = this.generateRepr();
@@ -50582,6 +50603,7 @@
 	    });
 	    this.hit = false;
 	    this.holes = 0;
+	    this.filled = 0;
 	  }
 	
 	  _createClass(Wall, [{
@@ -50635,8 +50657,23 @@
 	    value: function restart() {
 	      var _this2 = this;
 	
+	      this.gameplay.wallRestart();
+	
+	      if (this.hit) {
+	        this.position.z += pieceDepth * 4;
+	      } else {
+	        if (this.holes === this.filled) {
+	          this.position.z -= pieceDepth * 4;
+	        }
+	      }
+	
+	      if (this.position.z < this.startZ) {
+	        this.position.z = this.startZ;
+	      }
+	
 	      this.hit = false;
 	      this.holes = 0;
+	      this.filled = 0;
 	      this.wallRepr = this.generateRepr();
 	      this.pieces.forEach(function (piece) {
 	        _this2.scene.remove(piece);
@@ -50646,10 +50683,8 @@
 	      this.pieces.forEach(function (piece) {
 	        return _this2.scene.add(piece);
 	      });
-	      if (this.hit) {
-	        this.position.z += pieceDepth * 4;
-	      }
-	      this.gameplay.wallRestart();
+	
+	      this.speed *= 1.02;
 	    }
 	  }, {
 	    key: 'generateRepr',
@@ -50707,6 +50742,64 @@
 	}();
 	
 	exports.default = Wall;
+
+/***/ },
+/* 305 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _game = __webpack_require__(299);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Score = function () {
+	  function Score() {
+	    _classCallCheck(this, Score);
+	
+	    this.value = 0;
+	    this.div = document.querySelector('.score');
+	    this.setupDiv();
+	  }
+	
+	  _createClass(Score, [{
+	    key: 'setupDiv',
+	    value: function setupDiv() {
+	      this.div.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.div.innerHTML = this.value;
+	      this.div.style.top = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.center();
+	    }
+	  }, {
+	    key: 'incrementBy',
+	    value: function incrementBy(x) {
+	      this.value += x;
+	      this.div.innerHTML = this.value;
+	    }
+	  }, {
+	    key: 'center',
+	    value: function center() {
+	      this.div.style.left = (0, _game.GET_WIDTH)() / 2 - this.div.clientWidth / 2 + 'px';
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {
+	      this.div.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.div.style.top = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.center();
+	    }
+	  }]);
+	
+	  return Score;
+	}();
+	
+	exports.default = Score;
 
 /***/ }
 /******/ ]);
