@@ -17,7 +17,7 @@ class GamePlay {
 
     this.player = new Player(this.scene, 10, 0, 200);
     this.floor = new Floor(this.scene, 0, -20, -400);
-    this.wall = new Wall(this.scene, 0, 0, -300);
+    this.wall = new Wall(this.scene, 0, 0, -300, this);
   }
 
   update() {
@@ -25,8 +25,7 @@ class GamePlay {
     this.floor.update();
     this.wall.update();
 
-    if (this.checkCollision()) {
-    }
+    this.checkCollision();
   }
 
   checkCollision() {
@@ -44,11 +43,13 @@ class GamePlay {
     // since z remains the same across all pieces
     // we dont need to iterate pieces to check against it
     if (!canCollide) {
-      return false;
+      return;
     }
 
     const wallPieces = this.wall.pieces;
     const playerPieces = this.player.pieces;
+    let failures = [];
+    let success = [];
 
     for (let p = 0; p < playerPieces.length; p++) {
       for (let w = 0; w < wallPieces.length; w++) {
@@ -59,12 +60,27 @@ class GamePlay {
         const yDistance = Math.abs(pPosition.y - wPosition.y);
 
         if (xDistance < (playerDepth + wallDepth) / 2 && yDistance < (playerDepth + wallDepth) / 2) {
-          return true;
+          if (wallPieces[w].material.visible) {
+            failures.push(wallPieces[w]);
+          } else {
+            success.push(playerPieces[p]);
+          }
         }
       }
     }
 
-    return false;
+    if (failures.length > 0) {
+      this.wall.hit = true;
+      wallPieces.forEach(w => w.material.color.setHex(0xff0000));
+      return;
+    }
+
+    success.forEach(s => s.setHex(0x00ff00));
+    this.wall.fullfiled = success.length;
+  }
+
+  wallRestart() {
+    this.player.restartColor();
   }
 
   render(renderer) {

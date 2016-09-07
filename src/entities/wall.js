@@ -2,13 +2,13 @@
 
 import { Math, TextureLoader, BoxBufferGeometry, MeshBasicMaterial, Mesh } from 'three';
 
-const texture = new TextureLoader().load('textures/player.png');
 const pieceWidth = 20;
 const pieceHeight = 20;
 const pieceDepth = 20;
 
 class Wall {
-  constructor(scene, x, y, z) {
+  constructor(scene, x, y, z, gameplay) {
+    this.gameplay = gameplay;
     this.scene = scene;
     this.wallRepr = this.generateRepr();
     this.depth = pieceDepth;
@@ -16,6 +16,8 @@ class Wall {
     this.speed = 2;
     this.pieces = this.createPieces(x, y, z);
     this.pieces.forEach(piece => this.scene.add(piece));
+    this.hit = false;
+    this.holes = 0;
   }
 
   createPieces() {
@@ -27,18 +29,18 @@ class Wall {
       for (let _x = 0; _x < this.wallRepr[_y].length; _x++) {
         const hasWall = this.wallRepr[_y][_x] === 1;
 
-        if (hasWall) {
-          pieces.push(this.createMesh(x + (_x * pieceWidth), y + (pieceHeight * _y), z));
-        }
+        this.holes++;
+        pieces.push(this.createMesh(x + (_x * pieceWidth), y + (pieceHeight * _y), z, hasWall));
       }
     }
 
     return pieces;
   }
 
-  createMesh(x, y, z) {
+  createMesh(x, y, z, visible) {
     const geometry = new BoxBufferGeometry(pieceWidth, pieceHeight, pieceDepth);
-    const material = new MeshBasicMaterial({map: texture});
+    const material = new MeshBasicMaterial({color: 0x0000ff});
+    material.visible = visible;
     const mesh = new Mesh(geometry, material);
 
     mesh.position.set(x, y, z);
@@ -59,10 +61,19 @@ class Wall {
   }
 
   restart() {
+    this.hit = false;
+    this.holes = 0;
     this.wallRepr = this.generateRepr();
-    this.pieces.forEach(piece => this.scene.remove(piece));
+    this.pieces.forEach(piece => {
+      this.scene.remove(piece);
+      piece.material.dispose();
+    });
     this.pieces = this.createPieces();
     this.pieces.forEach(piece => this.scene.add(piece));
+    if (this.hit) {
+      this.position.z += pieceDepth * 4;
+    }
+    this.gameplay.wallRestart();
   }
 
   generateRepr() {

@@ -8266,10 +8266,10 @@
 	}();
 	
 	var GET_WIDTH = exports.GET_WIDTH = function GET_WIDTH() {
-	  return window.innerWidth * .9;
+	  return window.innerWidth * .99;
 	};
 	var GET_HEIGHT = exports.GET_HEIGHT = function GET_HEIGHT() {
-	  return window.innerHeight * .9;
+	  return window.innerHeight * .99;
 	};
 	
 	exports.default = Game;
@@ -50059,7 +50059,7 @@
 	
 	    this.player = new _player2.default(this.scene, 10, 0, 200);
 	    this.floor = new _floor2.default(this.scene, 0, -20, -400);
-	    this.wall = new _wall2.default(this.scene, 0, 0, -300);
+	    this.wall = new _wall2.default(this.scene, 0, 0, -300, this);
 	  }
 	
 	  _createClass(GamePlay, [{
@@ -50068,6 +50068,69 @@
 	      this.player.update();
 	      this.floor.update();
 	      this.wall.update();
+	
+	      this.checkCollision();
+	    }
+	  }, {
+	    key: 'checkCollision',
+	    value: function checkCollision() {
+	      var playerDepth = this.player.getDepth();
+	      var wallDepth = this.wall.getDepth();
+	
+	      var wallTopZ = this.wall.getZ() - wallDepth / 2;
+	      var wallBottomZ = this.wall.getZ() + wallDepth / 2;
+	
+	      var playerTopZ = this.player.getZ() - wallDepth / 2;
+	      var playerBottomZ = this.player.getZ() + wallDepth / 2;
+	
+	      var canCollide = wallBottomZ > playerTopZ && wallTopZ < playerBottomZ;
+	
+	      // since z remains the same across all pieces
+	      // we dont need to iterate pieces to check against it
+	      if (!canCollide) {
+	        return;
+	      }
+	
+	      var wallPieces = this.wall.pieces;
+	      var playerPieces = this.player.pieces;
+	      var failures = [];
+	      var success = [];
+	
+	      for (var p = 0; p < playerPieces.length; p++) {
+	        for (var w = 0; w < wallPieces.length; w++) {
+	          var pPosition = playerPieces[p].position;
+	          var wPosition = wallPieces[w].position;
+	
+	          var xDistance = Math.abs(pPosition.x - wPosition.x);
+	          var yDistance = Math.abs(pPosition.y - wPosition.y);
+	
+	          if (xDistance < (playerDepth + wallDepth) / 2 && yDistance < (playerDepth + wallDepth) / 2) {
+	            if (wallPieces[w].material.visible) {
+	              failures.push(wallPieces[w]);
+	            } else {
+	              success.push(playerPieces[p]);
+	            }
+	          }
+	        }
+	      }
+	
+	      if (failures.length > 0) {
+	        this.wall.hit = true;
+	        wallPieces.forEach(function (w) {
+	          return w.material.color.setHex(0xff0000);
+	        });
+	        return;
+	      }
+	
+	      success.forEach(function (s) {
+	        return s.setHex(0x00ff00);
+	      });
+	      this.wall.fullfiled = success.length;
+	    }
+	  }, {
+	    key: 'wallRestart',
+	    value: function wallRestart() {
+	      this.player.restartColor();
 	    }
 	  }, {
 	    key: 'render',
@@ -50103,7 +50166,6 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var texture = new _three.TextureLoader().load('textures/player.png');
 	var pieceWidth = 20;
 	var pieceHeight = 20;
 	var pieceDepth = 20;
@@ -50123,6 +50185,7 @@
 	  function Player(scene, x, y, z) {
 	    _classCallCheck(this, Player);
 	
+	    this.depth = pieceDepth;
 	    this.scene = scene;
 	    this.growing = false;
 	    this.moving = false;
@@ -50160,9 +50223,10 @@
 	    key: 'calculateGrowPosition',
 	    value: function calculateGrowPosition(side) {
 	      var lastPiece = this.pieces[this.pieces.length - 1];
-	      var x = lastPiece.x;
-	      var y = lastPiece.y;
-	      var z = lastPiece.z;
+	      var _lastPiece$position = lastPiece.position;
+	      var x = _lastPiece$position.x;
+	      var y = _lastPiece$position.y;
+	      var z = _lastPiece$position.z;
 	
 	
 	      if (side === LEFT) {
@@ -50185,7 +50249,7 @@
 	      var z = _ref2.z;
 	
 	      return this.pieces.some(function (piece) {
-	        return piece.x === x && piece.y === y && piece.z === z;
+	        return piece.position.x === x && piece.position.y === y && piece.position.z === z;
 	      });
 	    }
 	  }, {
@@ -50225,7 +50289,7 @@
 	    key: 'move',
 	    value: function move(direction) {
 	      this.pieces.forEach(function (piece) {
-	        piece.setX(piece.x + speed * direction);
+	        piece.setX(piece.position.x + speed * direction);
 	      });
 	
 	      this.checkFloor();
@@ -50271,9 +50335,9 @@
 	    value: function getLeftPiece() {
 	      var leftPiece = this.pieces[0];
 	
-	      for (var i = 0; i < this.pieces.length; i++) {
+	      for (var i = 1; i < this.pieces.length; i++) {
 	        var curr = this.pieces[i];
-	        if (curr.x < leftPiece.x) {
+	        if (curr.position.x < leftPiece.position.x) {
 	          leftPiece = curr;
 	        }
 	      }
@@ -50285,9 +50349,9 @@
 	    value: function getRightPiece() {
 	      var rightPiece = this.pieces[0];
 	
-	      for (var i = 0; i < this.pieces.length; i++) {
+	      for (var i = 1; i < this.pieces.length; i++) {
 	        var curr = this.pieces[i];
-	        if (curr.x > rightPiece.x) {
+	        if (curr.position.x > rightPiece.position.x) {
 	          rightPiece = curr;
 	        }
 	      }
@@ -50304,17 +50368,34 @@
 	      var leftPiece = this.getLeftPiece();
 	      var rightPiece = this.getRightPiece();
 	
-	      if (leftPiece.x < leftLimit) {
-	        delta = leftPiece.x - leftLimit;
-	      } else if (rightPiece.x > rightLimit) {
-	        delta = rightPiece.x - rightLimit;
+	      if (leftPiece.position.x < leftLimit) {
+	        delta = leftPiece.position.x - leftLimit;
+	      } else if (rightPiece.position.x > rightLimit) {
+	        delta = rightPiece.position.x - rightLimit;
 	      }
 	
 	      if (delta !== 0) {
 	        this.pieces.forEach(function (piece) {
-	          piece.setX(piece.x - delta);
+	          piece.setX(piece.position.x - delta);
 	        });
 	      }
+	    }
+	  }, {
+	    key: 'getZ',
+	    value: function getZ() {
+	      return this.pieces[0].position.z;
+	    }
+	  }, {
+	    key: 'getDepth',
+	    value: function getDepth() {
+	      return pieceDepth;
+	    }
+	  }, {
+	    key: 'restartColor',
+	    value: function restartColor() {
+	      this.pieces.forEach(function (p) {
+	        return p.restartColor();
+	      });
 	    }
 	  }]);
 	
@@ -50327,9 +50408,7 @@
 	  function Piece(x, y, z, relative) {
 	    _classCallCheck(this, Piece);
 	
-	    this.x = x;
-	    this.y = y;
-	    this.z = z;
+	    this.position = { x: x, y: y, z: z };
 	    this.mesh = this.createMesh(x, y, z);
 	    this.relative = relative;
 	  }
@@ -50337,26 +50416,26 @@
 	  _createClass(Piece, [{
 	    key: 'setX',
 	    value: function setX(x) {
-	      this.x = x;
+	      this.position.x = x;
 	      this.mesh.position.x = x;
 	    }
 	  }, {
 	    key: 'setY',
 	    value: function setY(y) {
-	      this.y = y;
+	      this.position.y = y;
 	      this.mesh.position.y = y;
 	    }
 	  }, {
 	    key: 'setZ',
 	    value: function setZ(z) {
-	      this.z = z;
+	      this.position.z = z;
 	      this.mesh.position.z = z;
 	    }
 	  }, {
 	    key: 'createMesh',
 	    value: function createMesh(x, y, z) {
 	      var geometry = new _three.BoxBufferGeometry(pieceWidth, pieceWidth, pieceDepth);
-	      var material = new _three.MeshBasicMaterial({ map: texture });
+	      var material = new _three.MeshBasicMaterial();
 	      var mesh = new _three.Mesh(geometry, material);
 	
 	      mesh.position.set(x, y, z);
@@ -50366,11 +50445,21 @@
 	  }, {
 	    key: 'canGrow',
 	    value: function canGrow(side) {
-	      if (this.y === 0 && side === BOTTOM) {
+	      if (this.position.y === 0 && side === BOTTOM) {
 	        return false;
 	      }
 	
 	      return this.relative !== side;
+	    }
+	  }, {
+	    key: 'setHex',
+	    value: function setHex(hex) {
+	      this.mesh.material.color.setHex(hex);
+	    }
+	  }, {
+	    key: 'restartColor',
+	    value: function restartColor() {
+	      this.setHex(0xffffff);
 	    }
 	  }]);
 	
@@ -50471,42 +50560,46 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var texture = new _three.TextureLoader().load('textures/player.png');
 	var pieceWidth = 20;
 	var pieceHeight = 20;
 	var pieceDepth = 20;
 	
-	var wallRepr = [[1, 1, 1, 1, 0, 1, 1, 1, 1, 1], [1, 1, 1, 1, 0, 1, 1, 1, 1, 1], [1, 1, 0, 0, 0, 1, 1, 1, 1, 1], [1, 1, 0, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-	
 	var Wall = function () {
-	  function Wall(scene, x, y, z) {
+	  function Wall(scene, x, y, z, gameplay) {
+	    var _this = this;
+	
 	    _classCallCheck(this, Wall);
 	
+	    this.gameplay = gameplay;
+	    this.scene = scene;
+	    this.wallRepr = this.generateRepr();
+	    this.depth = pieceDepth;
 	    this.position = { x: x, y: y, z: z };
-	    this.speed = 5;
+	    this.speed = 2;
 	    this.pieces = this.createPieces(x, y, z);
 	    this.pieces.forEach(function (piece) {
-	      return scene.add(piece);
+	      return _this.scene.add(piece);
 	    });
+	    this.hit = false;
+	    this.holes = 0;
 	  }
 	
 	  _createClass(Wall, [{
 	    key: 'createPieces',
 	    value: function createPieces() {
-	      var x = this.position.x - (wallRepr[0].length * pieceWidth / 2 - pieceWidth / 2);
+	      var x = this.position.x - (this.wallRepr[0].length * pieceWidth / 2 - pieceWidth / 2);
 	      var _position = this.position;
 	      var y = _position.y;
 	      var z = _position.z;
 	
 	      var pieces = [];
 	
-	      for (var _y = 0; _y < wallRepr.length; _y++) {
-	        for (var _x = 0; _x < wallRepr[_y].length; _x++) {
-	          var hasWall = wallRepr[_y][_x] === 1;
+	      for (var _y = 0; _y < this.wallRepr.length; _y++) {
+	        for (var _x = 0; _x < this.wallRepr[_y].length; _x++) {
+	          var hasWall = this.wallRepr[_y][_x] === 1;
 	
-	          if (hasWall) {
-	            pieces.push(this.createMesh(x + _x * pieceWidth, y + pieceHeight * _y, z));
-	          }
+	          this.holes++;
+	          pieces.push(this.createMesh(x + _x * pieceWidth, y + pieceHeight * _y, z, hasWall));
 	        }
 	      }
 	
@@ -50514,9 +50607,10 @@
 	    }
 	  }, {
 	    key: 'createMesh',
-	    value: function createMesh(x, y, z) {
+	    value: function createMesh(x, y, z, visible) {
 	      var geometry = new _three.BoxBufferGeometry(pieceWidth, pieceHeight, pieceDepth);
-	      var material = new _three.MeshBasicMaterial({ map: texture });
+	      var material = new _three.MeshBasicMaterial({ color: 0x0000ff });
+	      material.visible = visible;
 	      var mesh = new _three.Mesh(geometry, material);
 	
 	      mesh.position.set(x, y, z);
@@ -50526,14 +50620,86 @@
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      var _this = this;
+	      for (var i = 0; i < this.pieces.length; i++) {
+	        var piece = this.pieces[i];
 	
-	      this.pieces.forEach(function (piece) {
-	        piece.position.z += _this.speed;
+	        piece.position.z += this.speed;
 	        if (piece.position.z >= 400) {
-	          piece.position.z = _this.position.z;
+	          this.restart();
+	          return;
 	        }
+	      }
+	    }
+	  }, {
+	    key: 'restart',
+	    value: function restart() {
+	      var _this2 = this;
+	
+	      this.hit = false;
+	      this.holes = 0;
+	      this.wallRepr = this.generateRepr();
+	      this.pieces.forEach(function (piece) {
+	        _this2.scene.remove(piece);
+	        piece.material.dispose();
 	      });
+	      this.pieces = this.createPieces();
+	      this.pieces.forEach(function (piece) {
+	        return _this2.scene.add(piece);
+	      });
+	      if (this.hit) {
+	        this.position.z += pieceDepth * 4;
+	      }
+	      this.gameplay.wallRestart();
+	    }
+	  }, {
+	    key: 'generateRepr',
+	    value: function generateRepr() {
+	      var wallRepr = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
+	      var holeLength = _three.Math.randInt(1, 10);
+	      var holePos = {
+	        y: 0,
+	        x: _three.Math.randInt(0, wallRepr[0].length - 1)
+	      };
+	
+	      while (holeLength > 0) {
+	        wallRepr[holePos.y][holePos.x] = 0;
+	        holeLength--;
+	
+	        var possibilities = [];
+	        if (wallRepr[holePos.y + 1] && wallRepr[holePos.y + 1][holePos.x] === 1) {
+	          possibilities.push({ y: holePos.y + 1, x: holePos.x });
+	        }
+	
+	        if (wallRepr[holePos.y - 1] && wallRepr[holePos.y - 1][holePos.x] === 1) {
+	          possibilities.push({ y: holePos.y - 1, x: holePos.x });
+	        }
+	
+	        if (wallRepr[holePos.y][holePos.x + 1] === 1) {
+	          possibilities.push({ y: holePos.y, x: holePos.x + 1 });
+	        }
+	
+	        if (wallRepr[holePos.y][holePos.x - 1] === 1) {
+	          possibilities.push({ y: holePos.y, x: holePos.x - 1 });
+	        }
+	
+	        if (possibilities.length === 0) {
+	          return wallRepr;
+	        }
+	
+	        holePos = possibilities[_three.Math.randInt(0, possibilities.length - 1)];
+	      }
+	
+	      return wallRepr;
+	    }
+	  }, {
+	    key: 'getZ',
+	    value: function getZ() {
+	      return this.pieces[0].position.z;
+	    }
+	  }, {
+	    key: 'getDepth',
+	    value: function getDepth() {
+	      return pieceDepth;
 	    }
 	  }]);
 	

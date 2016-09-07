@@ -2,7 +2,6 @@
 
 import { TextureLoader, BoxBufferGeometry, MeshBasicMaterial, Mesh } from 'three';
 
-const texture = new TextureLoader().load('textures/player.png');
 const pieceWidth = 20;
 const pieceHeight = 20;
 const pieceDepth = 20;
@@ -185,6 +184,10 @@ class Player {
   getDepth() {
     return pieceDepth;
   }
+
+  restartColor() {
+    this.pieces.forEach(p => p.restartColor());
+  }
 }
 
 class Piece {
@@ -213,7 +216,7 @@ class Piece {
 
   createMesh(x, y, z) {
     const geometry = new BoxBufferGeometry(pieceWidth, pieceWidth, pieceDepth);
-    const material = new MeshBasicMaterial({map: texture});
+    const material = new MeshBasicMaterial();
     const mesh = new Mesh(geometry, material);
 
     mesh.position.set(x, y, z);
@@ -227,6 +230,14 @@ class Piece {
     }
 
     return this.relative !== side;
+  }
+
+  setHex(hex) {
+    this.mesh.material.color.setHex(hex);
+  }
+
+  restartColor() {
+    this.setHex(0xffffff);
   }
 }
 
