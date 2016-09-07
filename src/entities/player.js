@@ -17,6 +17,7 @@ const sideByCode = {
 
 class Player {
   constructor(scene, x, y, z) {
+    this.depth = pieceDepth;
     this.scene = scene;
     this.growing = false;
     this.moving = false;
@@ -46,7 +47,7 @@ class Player {
 
   calculateGrowPosition(side) {
     const lastPiece = this.pieces[this.pieces.length - 1];
-    let {x, y, z} = lastPiece;
+    let {x, y, z} = lastPiece.position;
 
     if (side === LEFT) {
       x -= pieceWidth;
@@ -63,7 +64,7 @@ class Player {
 
   checkIfPieceInPos({x, y, z}) {
     return this.pieces.some(piece => {
-      return piece.x === x && piece.y === y && piece.z === z;
+      return piece.position.x === x && piece.position.y === y && piece.position.z === z;
     });
   }
 
@@ -93,7 +94,7 @@ class Player {
 
   move(direction) {
     this.pieces.forEach(piece => {
-      piece.setX(piece.x + (speed * direction));
+      piece.setX(piece.position.x + (speed * direction));
     });
 
     this.checkFloor();
@@ -133,9 +134,9 @@ class Player {
   getLeftPiece() {
     let leftPiece = this.pieces[0];
 
-    for (let i = 0; i < this.pieces.length; i++) {
+    for (let i = 1; i < this.pieces.length; i++) {
       const curr = this.pieces[i];
-      if (curr.x < leftPiece.x) {
+      if (curr.position.x < leftPiece.position.x) {
         leftPiece = curr;
       }
     }
@@ -146,9 +147,9 @@ class Player {
   getRightPiece() {
     let rightPiece = this.pieces[0];
 
-    for (let i = 0; i < this.pieces.length; i++) {
+    for (let i = 1; i < this.pieces.length; i++) {
       const curr = this.pieces[i];
-      if (curr.x > rightPiece.x) {
+      if (curr.position.x > rightPiece.position.x) {
         rightPiece = curr;
       }
     }
@@ -164,17 +165,25 @@ class Player {
     const leftPiece = this.getLeftPiece();
     const rightPiece = this.getRightPiece();
 
-    if (leftPiece.x < leftLimit) {
-      delta = leftPiece.x - leftLimit;
-    } else if (rightPiece.x > rightLimit) {
-      delta = rightPiece.x - rightLimit;
+    if (leftPiece.position.x < leftLimit) {
+      delta = leftPiece.position.x - leftLimit;
+    } else if (rightPiece.position.x > rightLimit) {
+      delta = rightPiece.position.x - rightLimit;
     }
 
     if (delta !== 0) {
       this.pieces.forEach(piece => {
-        piece.setX(piece.x - delta);
+        piece.setX(piece.position.x - delta);
       });
     }
+  }
+
+  getZ() {
+    return this.pieces[0].position.z;
+  }
+
+  getDepth() {
+    return pieceDepth;
   }
 }
 
@@ -182,25 +191,23 @@ class Piece {
   // relative
   // 0 -> bottom, 1 -> top, 2 -> left, 3 -> right
   constructor(x, y, z, relative) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.position = {x, y, z};
     this.mesh = this.createMesh(x, y, z);
     this.relative = relative;
   }
 
   setX(x) {
-    this.x = x;
+    this.position.x = x;
     this.mesh.position.x = x;
   }
 
   setY(y) {
-    this.y = y;
+    this.position.y = y;
     this.mesh.position.y = y;
   }
 
   setZ(z) {
-    this.z = z;
+    this.position.z = z;
     this.mesh.position.z = z;
   }
 
@@ -215,7 +222,7 @@ class Piece {
   }
 
   canGrow(side) {
-    if (this.y === 0 && side === BOTTOM) {
+    if (this.position.y === 0 && side === BOTTOM) {
       return false;
     }
 

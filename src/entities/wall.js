@@ -109,6 +109,14 @@ class Wall {
 
     return wallRepr;
   }
+
+  getZ() {
+    return this.pieces[0].position.z;
+  }
+
+  getDepth() {
+    return pieceDepth;
+  }
 }
 
 export default Wall;

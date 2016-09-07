@@ -24,6 +24,47 @@ class GamePlay {
     this.player.update();
     this.floor.update();
     this.wall.update();
+
+    if (this.checkCollision()) {
+    }
+  }
+
+  checkCollision() {
+    const playerDepth = this.player.getDepth();
+    const wallDepth = this.wall.getDepth();
+
+    const wallTopZ = this.wall.getZ() - wallDepth / 2;
+    const wallBottomZ = this.wall.getZ() + wallDepth / 2;
+
+    const playerTopZ = this.player.getZ() - wallDepth / 2;
+    const playerBottomZ = this.player.getZ() + wallDepth / 2;
+
+    const canCollide = wallBottomZ > playerTopZ && wallTopZ < playerBottomZ;
+
+    // since z remains the same across all pieces
+    // we dont need to iterate pieces to check against it
+    if (!canCollide) {
+      return false;
+    }
+
+    const wallPieces = this.wall.pieces;
+    const playerPieces = this.player.pieces;
+
+    for (let p = 0; p < playerPieces.length; p++) {
+      for (let w = 0; w < wallPieces.length; w++) {
+        const pPosition = playerPieces[p].position;
+        const wPosition = wallPieces[w].position;
+
+        const xDistance = Math.abs(pPosition.x - wPosition.x);
+        const yDistance = Math.abs(pPosition.y - wPosition.y);
+
+        if (xDistance < (playerDepth + wallDepth) / 2 && yDistance < (playerDepth + wallDepth) / 2) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   render(renderer) {
