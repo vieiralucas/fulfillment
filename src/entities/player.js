@@ -25,8 +25,8 @@ class Player {
 
     this.pieces.forEach(piece => scene.add(piece.mesh));
 
-    document.addEventListener('keydown', this.keyDown.bind(this));
-    document.addEventListener('keyup', this.keyUp.bind(this));
+    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
+    this.keyUpListener = document.addEventListener('keyup', this.keyUp.bind(this));
   }
 
   canGrow(side) {

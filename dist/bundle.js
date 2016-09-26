@@ -8210,7 +8210,11 @@
 	
 	var _three = __webpack_require__(300);
 	
-	var _gameplay = __webpack_require__(301);
+	var _menu = __webpack_require__(301);
+	
+	var _menu2 = _interopRequireDefault(_menu);
+	
+	var _gameplay = __webpack_require__(302);
 	
 	var _gameplay2 = _interopRequireDefault(_gameplay);
 	
@@ -8222,7 +8226,7 @@
 	  function Game() {
 	    _classCallCheck(this, Game);
 	
-	    this.screen = new _gameplay2.default();
+	    this.screen = new _menu2.default(this);
 	    this.renderer = this.createRenderer();
 	  }
 	
@@ -8259,6 +8263,11 @@
 	      window.requestAnimationFrame(this.render.bind(this));
 	      this.update();
 	      this.screen.render(this.renderer);
+	    }
+	  }, {
+	    key: 'startGamePlay',
+	    value: function startGamePlay() {
+	      this.screen = new _gameplay2.default();
 	    }
 	  }]);
 	
@@ -50031,19 +50040,225 @@
 	
 	var _game = __webpack_require__(299);
 	
-	var _player = __webpack_require__(302);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var START_GAME = 0;
+	var HALL_OF_FAME = 1;
+	var ABOUT = 2;
+	
+	var GamePlay = function () {
+	  function GamePlay(game) {
+	    _classCallCheck(this, GamePlay);
+	
+	    this.game = game;
+	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
+	    this.camera.position.y = 100;
+	    this.camera.position.z = 400;
+	
+	    this.startGame = document.createElement('div');
+	    document.body.appendChild(this.startGame);
+	    this.setupStartGame();
+	
+	    this.hallOfFame = document.createElement('div');
+	    document.body.appendChild(this.hallOfFame);
+	    this.setupHighscore();
+	
+	    this.about = document.createElement('div');
+	    document.body.appendChild(this.about);
+	    this.setupAbout();
+	
+	    this.arrowSet = new Image();
+	    this.arrowSet.src = './textures/arrowset.png';
+	    this.arrowSet.onload = this.setupTutorial.bind(this);
+	    document.body.appendChild(this.arrowSet);
+	
+	    this.spaceSet = new Image();
+	    this.spaceSet.src = './textures/spaceset.png';
+	    this.spaceSet.onload = this.setupTutorial.bind(this);
+	    document.body.appendChild(this.spaceSet);
+	
+	    this.arrowExplanation = document.createElement('div');
+	    document.body.appendChild(this.arrowExplanation);
+	
+	    this.spaceExplanation = document.createElement('div');
+	    document.body.appendChild(this.spaceExplanation);
+	
+	    this.setupTutorial();
+	
+	    this.selected = START_GAME;
+	
+	    this.scene = new _three.Scene();
+	
+	    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
+	  }
+	
+	  _createClass(GamePlay, [{
+	    key: 'setupTutorial',
+	    value: function setupTutorial() {
+	      this.arrowSet.className = 'gui-item';
+	      this.arrowSet.height = (0, _game.GET_HEIGHT)() / 6;
+	      this.arrowSet.style.top = (0, _game.GET_HEIGHT)() / 6 * 1 + 'px';
+	      this.arrowSet.style.left = (0, _game.GET_WIDTH)() / 20 * 2 + 'px';
+	
+	      this.spaceSet.className = 'gui-item';
+	      this.spaceSet.height = (0, _game.GET_HEIGHT)() / 6;
+	      this.spaceSet.style.top = (0, _game.GET_HEIGHT)() / 6 * 1 + 'px';
+	      this.spaceSet.style.left = (0, _game.GET_WIDTH)() / 20 * 8 + 'px';
+	
+	      this.arrowExplanation.style.fontSize = (0, _game.GET_HEIGHT)() / 40 + 'px';
+	      this.arrowExplanation.innerHTML = 'USE THE ARROW KEYS TO CONTROL THE BOX';
+	      this.arrowExplanation.className = 'gui-item';
+	      this.arrowExplanation.style.top = (0, _game.GET_HEIGHT)() / 6 * 2.2 + 'px';
+	      this.arrowExplanation.style.left = (0, _game.GET_WIDTH)() / 20 * 2 - (0, _game.GET_WIDTH)() / 30 + 'px';
+	      this.arrowExplanation.style.width = this.arrowSet.width * 1.5 + 'px';
+	      this.arrowExplanation.style['text-align'] = 'center';
+	
+	      this.spaceExplanation.style.fontSize = (0, _game.GET_HEIGHT)() / 40 + 'px';
+	      this.spaceExplanation.innerHTML = 'HOLD SPACE + AN ARROW KEY TO MAKE THE BOX GROW';
+	      this.spaceExplanation.className = 'gui-item';
+	      this.spaceExplanation.style.top = (0, _game.GET_HEIGHT)() / 6 * 2.2 + 'px';
+	      this.spaceExplanation.style.left = (0, _game.GET_WIDTH)() / 20 * 8 + 'px';
+	      this.spaceExplanation.style.width = this.spaceSet.width + 'px';
+	      this.spaceExplanation.style['text-align'] = 'center';
+	    }
+	  }, {
+	    key: 'setupStartGame',
+	    value: function setupStartGame() {
+	      this.startGame.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.startGame.innerHTML = 'START GAME';
+	      this.startGame.className = 'gui-item';
+	      this.startGame.style.top = (0, _game.GET_HEIGHT)() / 20 * 14 + 'px';
+	      this.center(this.startGame);
+	    }
+	  }, {
+	    key: 'setupHighscore',
+	    value: function setupHighscore() {
+	      this.hallOfFame.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.hallOfFame.innerHTML = 'HALL OF FAME';
+	      this.hallOfFame.className = 'gui-item';
+	      this.hallOfFame.style.top = (0, _game.GET_HEIGHT)() / 20 * 16 + 'px';
+	      this.center(this.hallOfFame);
+	    }
+	  }, {
+	    key: 'setupAbout',
+	    value: function setupAbout() {
+	      this.about.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.about.innerHTML = 'ABOUT';
+	      this.about.className = 'gui-item';
+	      this.about.style.top = (0, _game.GET_HEIGHT)() / 20 * 18 + 'px';
+	      this.center(this.about);
+	    }
+	  }, {
+	    key: 'center',
+	    value: function center(div) {
+	      div.style.left = (0, _game.GET_WIDTH)() / 2 - div.clientWidth / 2 + 'px';
+	    }
+	  }, {
+	    key: 'keyDown',
+	    value: function keyDown(_ref) {
+	      var code = _ref.code;
+	
+	      if (code === 'ArrowDown') {
+	        this.selected++;
+	
+	        if (this.selected > ABOUT) {
+	          this.selected = START_GAME;
+	        }
+	      }
+	
+	      if (code === 'ArrowUp') {
+	        this.selected--;
+	
+	        if (this.selected < START_GAME) {
+	          this.selected = ABOUT;
+	        }
+	      }
+	
+	      if (code === 'Space' || code === 'Enter') {
+	        if (this.selected === START_GAME) {
+	          this.destroy();
+	          this.game.startGamePlay();
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      this.startGame.style['text-decoration'] = 'none';
+	      this.hallOfFame.style['text-decoration'] = 'none';
+	      this.about.style['text-decoration'] = 'none';
+	
+	      if (this.selected === START_GAME) {
+	        this.startGame.style['text-decoration'] = 'underline';
+	      } else if (this.selected === HALL_OF_FAME) {
+	        this.hallOfFame.style['text-decoration'] = 'underline';
+	      } else {
+	        this.about.style['text-decoration'] = 'underline';
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(renderer) {
+	      renderer.render(this.scene, this.camera);
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {
+	      this.camera.aspect = (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)();
+	      this.camera.updateProjectionMatrix();
+	
+	      this.setupStartGame();
+	      this.setupHighscore();
+	      this.setupAbout();
+	      this.setupTutorial();
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      document.body.removeChild(this.startGame);
+	      document.body.removeChild(this.hallOfFame);
+	      document.body.removeChild(this.about);
+	      document.body.removeChild(this.arrowSet);
+	      document.body.removeChild(this.spaceSet);
+	      document.body.removeChild(this.arrowExplanation);
+	      document.body.removeChild(this.spaceExplanation);
+	    }
+	  }]);
+	
+	  return GamePlay;
+	}();
+	
+	exports.default = GamePlay;
+
+/***/ },
+/* 302 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _three = __webpack_require__(300);
+	
+	var _game = __webpack_require__(299);
+	
+	var _player = __webpack_require__(303);
 	
 	var _player2 = _interopRequireDefault(_player);
 	
-	var _floor = __webpack_require__(303);
+	var _floor = __webpack_require__(304);
 	
 	var _floor2 = _interopRequireDefault(_floor);
 	
-	var _wall = __webpack_require__(304);
+	var _wall = __webpack_require__(305);
 	
 	var _wall2 = _interopRequireDefault(_wall);
 	
-	var _score = __webpack_require__(305);
+	var _score = __webpack_require__(306);
 	
 	var _score2 = _interopRequireDefault(_score);
 	
@@ -50170,7 +50385,7 @@
 	exports.default = GamePlay;
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50215,8 +50430,8 @@
 	      return scene.add(piece.mesh);
 	    });
 	
-	    document.addEventListener('keydown', this.keyDown.bind(this));
-	    document.addEventListener('keyup', this.keyUp.bind(this));
+	    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
+	    this.keyUpListener = document.addEventListener('keyup', this.keyUp.bind(this));
 	  }
 	
 	  _createClass(Player, [{
@@ -50489,7 +50704,7 @@
 	exports.default = Player;
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50565,7 +50780,7 @@
 	exports.default = Floor;
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50744,7 +50959,7 @@
 	exports.default = Wall;
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50764,7 +50979,7 @@
 	    _classCallCheck(this, Score);
 	
 	    this.value = 0;
-	    this.div = document.querySelector('.score');
+	    this.div = document.createElement('div');
 	    this.setupDiv();
 	  }
 	
@@ -50774,7 +50989,9 @@
 	      this.div.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
 	      this.div.innerHTML = this.value;
 	      this.div.style.top = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.div.className = 'gui-item';
 	      this.center();
+	      document.body.appendChild(this.div);
 	    }
 	  }, {
 	    key: 'incrementBy',
@@ -50793,6 +51010,11 @@
 	      this.div.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
 	      this.div.style.top = (0, _game.GET_HEIGHT)() / 20 + 'px';
 	      this.center();
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      document.body.removeChild(this.div);
 	    }
 	  }]);
 	

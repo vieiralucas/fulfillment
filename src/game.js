@@ -1,11 +1,12 @@
 'use strict';
 
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import Menu from './screens/menu';
 import GamePlay from './screens/gameplay';
 
 class Game {
   constructor() {
-    this.screen = new GamePlay();
+    this.screen = new Menu(this);
     this.renderer = this.createRenderer();
   }
 
@@ -36,6 +37,10 @@ class Game {
     window.requestAnimationFrame(this.render.bind(this));
     this.update();
     this.screen.render(this.renderer);
+  }
+
+  startGamePlay() {
+    this.screen = new GamePlay();
   }
 }
 
