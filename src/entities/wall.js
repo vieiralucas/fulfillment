@@ -67,14 +67,6 @@ class Wall {
 
     if (this.hit) {
       this.position.z += pieceDepth * 4;
-    } else {
-      if (this.holes === this.filled) {
-        this.position.z -= pieceDepth * 4;
-      }
-    }
-
-    if (this.position.z < this.startZ) {
-      this.position.z = this.startZ;
     }
 
     this.hit = false;
@@ -140,6 +132,12 @@ class Wall {
 
   getDepth() {
     return pieceDepth;
+  }
+
+  destroy() {
+    this.pieces.forEach(piece => {
+      piece.material.dispose();
+    });
   }
 }
 

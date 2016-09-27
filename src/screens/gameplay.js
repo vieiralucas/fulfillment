@@ -9,7 +9,8 @@ import Wall from '../entities/wall';
 import Score from '../entities/score';
 
 class GamePlay {
-  constructor() {
+  constructor(game) {
+    this.game = game;
     this.camera = new PerspectiveCamera(70, GET_WIDTH() / GET_HEIGHT(), 1, 1000);
     this.camera.position.y = 100;
     this.camera.position.z = 400;
@@ -84,6 +85,11 @@ class GamePlay {
   wallRestart() {
     this.player.restartColor();
 
+    if (this.wall.position.z >= this.player.pieces[0].position.z) {
+      this.gameOver();
+      return;
+    }
+
     if (!this.wall.hit) {
       if (this.wall.holes <= this.wall.filled) {
         this.player.combo += 1;
@@ -96,6 +102,12 @@ class GamePlay {
     } else {
       this.player.combo = 1;
     }
+  }
+
+  gameOver() {
+    this.wall.destroy();
+    this.player.destroy();
+    this.game.gameOver();
   }
 
   render(renderer) {

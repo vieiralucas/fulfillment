@@ -40,7 +40,12 @@ class Game {
   }
 
   startGamePlay() {
-    this.screen = new GamePlay();
+    this.screen = new GamePlay(this);
+  }
+
+  gameOver(score) {
+    // TODO gameover screen, for now go back to menu
+    this.screen = new Menu(this);
   }
 }
 

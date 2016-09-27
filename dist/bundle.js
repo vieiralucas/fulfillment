@@ -8267,7 +8267,13 @@
 	  }, {
 	    key: 'startGamePlay',
 	    value: function startGamePlay() {
-	      this.screen = new _gameplay2.default();
+	      this.screen = new _gameplay2.default(this);
+	    }
+	  }, {
+	    key: 'gameOver',
+	    value: function gameOver(score) {
+	      // TODO gameover screen, for now go back to menu
+	      this.screen = new _menu2.default(this);
 	    }
 	  }]);
 	
@@ -50089,7 +50095,8 @@
 	
 	    this.scene = new _three.Scene();
 	
-	    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
+	    this.keyDownListener = this.keyDown.bind(this);
+	    document.addEventListener('keydown', this.keyDownListener);
 	  }
 	
 	  _createClass(GamePlay, [{
@@ -50222,6 +50229,7 @@
 	      document.body.removeChild(this.spaceSet);
 	      document.body.removeChild(this.arrowExplanation);
 	      document.body.removeChild(this.spaceExplanation);
+	      document.removeEventListener('keydown', this.keyDownListener);
 	    }
 	  }]);
 	
@@ -50267,9 +50275,10 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var GamePlay = function () {
-	  function GamePlay() {
+	  function GamePlay(game) {
 	    _classCallCheck(this, GamePlay);
 	
+	    this.game = game;
 	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
 	    this.camera.position.y = 100;
 	    this.camera.position.z = 400;
@@ -50352,6 +50361,11 @@
 	    value: function wallRestart() {
 	      this.player.restartColor();
 	
+	      if (this.wall.position.z >= this.player.pieces[0].position.z) {
+	        this.gameOver();
+	        return;
+	      }
+	
 	      if (!this.wall.hit) {
 	        if (this.wall.holes <= this.wall.filled) {
 	          this.player.combo += 1;
@@ -50364,6 +50378,13 @@
 	      } else {
 	        this.player.combo = 1;
 	      }
+	    }
+	  }, {
+	    key: 'gameOver',
+	    value: function gameOver() {
+	      this.wall.destroy();
+	      this.player.destroy();
+	      this.game.gameOver();
 	    }
 	  }, {
 	    key: 'render',
@@ -50430,8 +50451,11 @@
 	      return scene.add(piece.mesh);
 	    });
 	
-	    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
-	    this.keyUpListener = document.addEventListener('keyup', this.keyUp.bind(this));
+	    this.keyDownListener = this.keyDown.bind(this);
+	    document.addEventListener('keydown', this.keyDownListener);
+	
+	    this.keyUpListener = this.keyUp.bind(this);
+	    document.addEventListener('keyup', this.keyUpListener);
 	  }
 	
 	  _createClass(Player, [{
@@ -50632,6 +50656,12 @@
 	        return p.restartColor();
 	      });
 	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      document.removeEventListener('keydown', this.keyDownListener);
+	      document.removeEventListener('keyup', this.keyDownListener);
+	    }
 	  }]);
 	
 	  return Player;
@@ -50811,7 +50841,7 @@
 	    this.wallRepr = this.generateRepr();
 	    this.depth = pieceDepth;
 	    this.position = { x: x, y: y, z: z };
-	    this.speed = 2;
+	    this.speed = 20;
 	    this.pieces = this.createPieces(x, y, z);
 	    this.pieces.forEach(function (piece) {
 	      return _this.scene.add(piece);
@@ -50876,14 +50906,6 @@
 	
 	      if (this.hit) {
 	        this.position.z += pieceDepth * 4;
-	      } else {
-	        if (this.holes === this.filled) {
-	          this.position.z -= pieceDepth * 4;
-	        }
-	      }
-	
-	      if (this.position.z < this.startZ) {
-	        this.position.z = this.startZ;
 	      }
 	
 	      this.hit = false;
@@ -50948,6 +50970,13 @@
 	    key: 'getDepth',
 	    value: function getDepth() {
 	      return pieceDepth;
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      this.pieces.forEach(function (piece) {
+	        piece.material.dispose();
+	      });
 	    }
 	  }]);
 	

@@ -25,8 +25,11 @@ class Player {
 
     this.pieces.forEach(piece => scene.add(piece.mesh));
 
-    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
-    this.keyUpListener = document.addEventListener('keyup', this.keyUp.bind(this));
+    this.keyDownListener = this.keyDown.bind(this);
+    document.addEventListener('keydown', this.keyDownListener);
+
+    this.keyUpListener = this.keyUp.bind(this);
+    document.addEventListener('keyup', this.keyUpListener);
   }
 
   canGrow(side) {
@@ -188,6 +191,11 @@ class Player {
 
   restartColor() {
     this.pieces.forEach(p => p.restartColor());
+  }
+
+  destroy() {
+    document.removeEventListener('keydown', this.keyDownListener);
+    document.removeEventListener('keyup', this.keyDownListener);
   }
 }
 

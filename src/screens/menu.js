@@ -48,7 +48,8 @@ class GamePlay {
 
     this.scene = new Scene();
 
-    this.keyDownListener = document.addEventListener('keydown', this.keyDown.bind(this));
+    this.keyDownListener = this.keyDown.bind(this);
+    document.addEventListener('keydown', this.keyDownListener);
   }
 
   setupTutorial() {
@@ -168,6 +169,7 @@ class GamePlay {
     document.body.removeChild(this.spaceSet);
     document.body.removeChild(this.arrowExplanation);
     document.body.removeChild(this.spaceExplanation);
+    document.removeEventListener('keydown', this.keyDownListener);
   }
 }
 
