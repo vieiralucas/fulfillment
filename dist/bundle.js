@@ -50114,7 +50114,7 @@
 	      this.arrowExplanation.style['text-align'] = 'center';
 	
 	      this.spaceExplanation.style.fontSize = (0, _game.GET_HEIGHT)() / 40 + 'px';
-	      this.spaceExplanation.innerHTML = 'HOLD SPACE + AN ARROW KEY TO MAKE THE BOX GROW';
+	      this.spaceExplanation.innerHTML = 'HOLD SPACE + AN ARROW KEY TO MAKE THE BOX GROW OR SHRINK';
 	      this.spaceExplanation.className = 'gui-item';
 	      this.spaceExplanation.style.top = (0, _game.GET_HEIGHT)() / 6 * 2.2 + 'px';
 	      this.spaceExplanation.style.left = (0, _game.GET_WIDTH)() / 20 * 8 + 'px';
