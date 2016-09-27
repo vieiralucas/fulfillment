@@ -87,8 +87,6 @@ class Wall {
     });
     this.pieces = this.createPieces();
     this.pieces.forEach(piece => this.scene.add(piece));
-
-    this.speed *= 1.02;
   }
 
   generateRepr() {

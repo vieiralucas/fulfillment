@@ -50898,8 +50898,6 @@
 	      this.pieces.forEach(function (piece) {
 	        return _this2.scene.add(piece);
 	      });
-	
-	      this.speed *= 1.02;
 	    }
 	  }, {
 	    key: 'generateRepr',
