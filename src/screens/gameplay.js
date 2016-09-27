@@ -75,6 +75,7 @@ class GamePlay {
     if (failures.length > 0) {
       this.wall.hit = true;
       wallPieces.forEach(w => w.material.color.setHex(0xff0000));
+      this.gameOver();
       return;
     }
 
@@ -84,11 +85,6 @@ class GamePlay {
 
   wallRestart() {
     this.player.restartColor();
-
-    if (this.wall.position.z >= this.player.pieces[0].position.z) {
-      this.gameOver();
-      return;
-    }
 
     if (!this.wall.hit) {
       if (this.wall.holes <= this.wall.filled) {
@@ -107,6 +103,7 @@ class GamePlay {
   gameOver() {
     this.wall.destroy();
     this.player.destroy();
+    this.score.destroy();
     this.game.gameOver();
   }
 

@@ -50348,6 +50348,7 @@
 	        wallPieces.forEach(function (w) {
 	          return w.material.color.setHex(0xff0000);
 	        });
+	        this.gameOver();
 	        return;
 	      }
 	
@@ -50360,11 +50361,6 @@
 	    key: 'wallRestart',
 	    value: function wallRestart() {
 	      this.player.restartColor();
-	
-	      if (this.wall.position.z >= this.player.pieces[0].position.z) {
-	        this.gameOver();
-	        return;
-	      }
 	
 	      if (!this.wall.hit) {
 	        if (this.wall.holes <= this.wall.filled) {
@@ -50384,6 +50380,7 @@
 	    value: function gameOver() {
 	      this.wall.destroy();
 	      this.player.destroy();
+	      this.score.destroy();
 	      this.game.gameOver();
 	    }
 	  }, {
@@ -50841,7 +50838,7 @@
 	    this.wallRepr = this.generateRepr();
 	    this.depth = pieceDepth;
 	    this.position = { x: x, y: y, z: z };
-	    this.speed = 20;
+	    this.speed = 2;
 	    this.pieces = this.createPieces(x, y, z);
 	    this.pieces.forEach(function (piece) {
 	      return _this.scene.add(piece);
@@ -50903,11 +50900,6 @@
 	      var _this2 = this;
 	
 	      this.gameplay.wallRestart();
-	
-	      if (this.hit) {
-	        this.position.z += pieceDepth * 4;
-	      }
-	
 	      this.hit = false;
 	      this.holes = 0;
 	      this.filled = 0;

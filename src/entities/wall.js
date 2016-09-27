@@ -64,11 +64,6 @@ class Wall {
 
   restart() {
     this.gameplay.wallRestart();
-
-    if (this.hit) {
-      this.position.z += pieceDepth * 4;
-    }
-
     this.hit = false;
     this.holes = 0;
     this.filled = 0;
