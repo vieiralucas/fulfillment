@@ -7,7 +7,7 @@ const START_GAME = 0;
 const HALL_OF_FAME = 1;
 const ABOUT = 2;
 
-class GamePlay {
+class Menu {
   constructor(game) {
     this.game = game;
     this.camera = new PerspectiveCamera(70, GET_WIDTH() / GET_HEIGHT(), 1, 1000);
@@ -173,4 +173,4 @@ class GamePlay {
   }
 }
 
-export default GamePlay;
+export default Menu;
