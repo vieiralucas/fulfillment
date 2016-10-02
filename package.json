@@ -2,8 +2,9 @@
   "name": "g1",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server",
     "dev": "npm run build:watch & http-server -p 1337",
     "build": "webpack",
     "build:watch": "nodemon -w src/ --exec npm run build",
@@ -14,6 +15,10 @@
   "dependencies": {
     "babel-polyfill": "^6.13.0",
     "babel-runtime": "^6.11.6",
+    "body-parser": "^1.15.2",
+    "cors": "^2.8.1",
+    "express": "^4.14.0",
+    "redis": "^2.6.2",
     "three": "^0.80.1"
   },
   "devDependencies": {
