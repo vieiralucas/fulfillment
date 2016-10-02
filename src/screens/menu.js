@@ -53,20 +53,20 @@ class Menu {
   }
 
   setupTutorial() {
+    this.spaceSet.className = 'gui-item';
+    this.spaceSet.width = GET_WIDTH() / 2;
+    this.spaceSet.style.top = `${(GET_HEIGHT() / 6 * 1)}px`;
+    this.spaceSet.style.right = `${(GET_WIDTH() / 20 * 2)}px`;
+
     this.arrowSet.className = 'gui-item';
-    this.arrowSet.height = GET_HEIGHT() / 6;
+    this.arrowSet.height = this.spaceSet.height;
     this.arrowSet.style.top = `${(GET_HEIGHT() / 6 * 1)}px`;
     this.arrowSet.style.left = `${(GET_WIDTH() / 20 * 2)}px`;
-
-    this.spaceSet.className = 'gui-item';
-    this.spaceSet.height = GET_HEIGHT() / 6;
-    this.spaceSet.style.top = `${(GET_HEIGHT() / 6 * 1)}px`;
-    this.spaceSet.style.left = `${(GET_WIDTH() / 20 * 8)}px`;
 
     this.arrowExplanation.style.fontSize = `${GET_HEIGHT() / 40}px`;
     this.arrowExplanation.innerHTML = 'USE THE ARROW KEYS TO CONTROL THE BOX';
     this.arrowExplanation.className = 'gui-item';
-    this.arrowExplanation.style.top = `${(GET_HEIGHT() / 6 * 2.2)}px`;
+    this.arrowExplanation.style.top = `${(Number(this.arrowSet.style.top.split('px')[0]) + this.arrowSet.height + 10)}px`;
     this.arrowExplanation.style.left = `${(GET_WIDTH() / 20 * 2) - (GET_WIDTH() / 30)}px`;
     this.arrowExplanation.style.width = `${this.arrowSet.width * 1.5}px`;
     this.arrowExplanation.style['text-align'] = 'center';
@@ -74,8 +74,8 @@ class Menu {
     this.spaceExplanation.style.fontSize = `${GET_HEIGHT() / 40}px`;
     this.spaceExplanation.innerHTML = 'HOLD SPACE + AN ARROW KEY TO MAKE THE BOX GROW OR SHRINK';
     this.spaceExplanation.className = 'gui-item';
-    this.spaceExplanation.style.top = `${(GET_HEIGHT() / 6 * 2.2)}px`;
-    this.spaceExplanation.style.left = `${(GET_WIDTH() / 20 * 8)}px`;
+    this.spaceExplanation.style.top = `${(Number(this.spaceSet.style.top.split('px')[0]) + this.spaceSet.height + 10)}px`;
+    this.spaceExplanation.style.right = `${(GET_WIDTH() / 20 * 2)}px`;
     this.spaceExplanation.style.width = `${this.spaceSet.width}px`;
     this.spaceExplanation.style['text-align'] = 'center';
   }

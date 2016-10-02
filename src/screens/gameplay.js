@@ -104,7 +104,7 @@ class GamePlay {
     this.wall.destroy();
     this.player.destroy();
     this.score.destroy();
-    this.game.gameOver();
+    this.game.gameOver(this.score);
   }
 
   render(renderer) {

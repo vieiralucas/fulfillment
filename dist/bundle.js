@@ -8214,7 +8214,11 @@
 	
 	var _menu2 = _interopRequireDefault(_menu);
 	
-	var _gameplay = __webpack_require__(302);
+	var _gameover = __webpack_require__(302);
+	
+	var _gameover2 = _interopRequireDefault(_gameover);
+	
+	var _gameplay = __webpack_require__(303);
 	
 	var _gameplay2 = _interopRequireDefault(_gameplay);
 	
@@ -8226,8 +8230,8 @@
 	  function Game() {
 	    _classCallCheck(this, Game);
 	
-	    this.screen = new _menu2.default(this);
 	    this.renderer = this.createRenderer();
+	    this.gotoMenu();
 	  }
 	
 	  _createClass(Game, [{
@@ -8270,10 +8274,14 @@
 	      this.screen = new _gameplay2.default(this);
 	    }
 	  }, {
+	    key: 'gotoMenu',
+	    value: function gotoMenu() {
+	      this.screen = new _menu2.default(this);
+	    }
+	  }, {
 	    key: 'gameOver',
 	    value: function gameOver(score) {
-	      // TODO gameover screen, for now go back to menu
-	      this.screen = new _menu2.default(this);
+	      this.screen = new _gameover2.default(this, score.value);
 	    }
 	  }]);
 	
@@ -50052,9 +50060,9 @@
 	var HALL_OF_FAME = 1;
 	var ABOUT = 2;
 	
-	var GamePlay = function () {
-	  function GamePlay(game) {
-	    _classCallCheck(this, GamePlay);
+	var Menu = function () {
+	  function Menu(game) {
+	    _classCallCheck(this, Menu);
 	
 	    this.game = game;
 	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
@@ -50099,23 +50107,23 @@
 	    document.addEventListener('keydown', this.keyDownListener);
 	  }
 	
-	  _createClass(GamePlay, [{
+	  _createClass(Menu, [{
 	    key: 'setupTutorial',
 	    value: function setupTutorial() {
+	      this.spaceSet.className = 'gui-item';
+	      this.spaceSet.width = (0, _game.GET_WIDTH)() / 2;
+	      this.spaceSet.style.top = (0, _game.GET_HEIGHT)() / 6 * 1 + 'px';
+	      this.spaceSet.style.right = (0, _game.GET_WIDTH)() / 20 * 2 + 'px';
+	
 	      this.arrowSet.className = 'gui-item';
-	      this.arrowSet.height = (0, _game.GET_HEIGHT)() / 6;
+	      this.arrowSet.height = this.spaceSet.height;
 	      this.arrowSet.style.top = (0, _game.GET_HEIGHT)() / 6 * 1 + 'px';
 	      this.arrowSet.style.left = (0, _game.GET_WIDTH)() / 20 * 2 + 'px';
-	
-	      this.spaceSet.className = 'gui-item';
-	      this.spaceSet.height = (0, _game.GET_HEIGHT)() / 6;
-	      this.spaceSet.style.top = (0, _game.GET_HEIGHT)() / 6 * 1 + 'px';
-	      this.spaceSet.style.left = (0, _game.GET_WIDTH)() / 20 * 8 + 'px';
 	
 	      this.arrowExplanation.style.fontSize = (0, _game.GET_HEIGHT)() / 40 + 'px';
 	      this.arrowExplanation.innerHTML = 'USE THE ARROW KEYS TO CONTROL THE BOX';
 	      this.arrowExplanation.className = 'gui-item';
-	      this.arrowExplanation.style.top = (0, _game.GET_HEIGHT)() / 6 * 2.2 + 'px';
+	      this.arrowExplanation.style.top = Number(this.arrowSet.style.top.split('px')[0]) + this.arrowSet.height + 10 + 'px';
 	      this.arrowExplanation.style.left = (0, _game.GET_WIDTH)() / 20 * 2 - (0, _game.GET_WIDTH)() / 30 + 'px';
 	      this.arrowExplanation.style.width = this.arrowSet.width * 1.5 + 'px';
 	      this.arrowExplanation.style['text-align'] = 'center';
@@ -50123,8 +50131,8 @@
 	      this.spaceExplanation.style.fontSize = (0, _game.GET_HEIGHT)() / 40 + 'px';
 	      this.spaceExplanation.innerHTML = 'HOLD SPACE + AN ARROW KEY TO MAKE THE BOX GROW OR SHRINK';
 	      this.spaceExplanation.className = 'gui-item';
-	      this.spaceExplanation.style.top = (0, _game.GET_HEIGHT)() / 6 * 2.2 + 'px';
-	      this.spaceExplanation.style.left = (0, _game.GET_WIDTH)() / 20 * 8 + 'px';
+	      this.spaceExplanation.style.top = Number(this.spaceSet.style.top.split('px')[0]) + this.spaceSet.height + 10 + 'px';
+	      this.spaceExplanation.style.right = (0, _game.GET_WIDTH)() / 20 * 2 + 'px';
 	      this.spaceExplanation.style.width = this.spaceSet.width + 'px';
 	      this.spaceExplanation.style['text-align'] = 'center';
 	    }
@@ -50233,10 +50241,10 @@
 	    }
 	  }]);
 	
-	  return GamePlay;
+	  return Menu;
 	}();
 	
-	exports.default = GamePlay;
+	exports.default = Menu;
 
 /***/ },
 /* 302 */
@@ -50254,19 +50262,174 @@
 	
 	var _game = __webpack_require__(299);
 	
-	var _player = __webpack_require__(303);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var GameOver = function () {
+	  function GameOver(game, score) {
+	    _classCallCheck(this, GameOver);
+	
+	    this.game = game;
+	    console.log(score);
+	    this.score = score;
+	
+	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
+	    this.camera.position.y = 100;
+	    this.camera.position.z = 400;
+	
+	    this.gameOver = document.createElement('div');
+	    document.body.appendChild(this.gameOver);
+	    this.setupGameOver();
+	
+	    this.scoreDiv = document.createElement('div');
+	    document.body.appendChild(this.scoreDiv);
+	    this.setupScore();
+	
+	    this.putYourName = document.createElement('div');
+	    document.body.appendChild(this.putYourName);
+	    this.setupPutYourName();
+	
+	    this.nameInput = document.createElement('input');
+	    document.body.appendChild(this.nameInput);
+	    this.setupNameInput();
+	
+	    this.pressEnter = document.createElement('div');
+	    document.body.appendChild(this.pressEnter);
+	    this.setupPressEnter();
+	
+	    this.scene = new _three.Scene();
+	
+	    this.keyDownListener = this.keyDown.bind(this);
+	    document.addEventListener('keydown', this.keyDownListener);
+	  }
+	
+	  _createClass(GameOver, [{
+	    key: 'setupGameOver',
+	    value: function setupGameOver() {
+	      this.gameOver.style.fontSize = (0, _game.GET_HEIGHT)() / 10 + 'px';
+	      this.gameOver.innerHTML = 'GAME OVER';
+	      this.gameOver.className = 'gui-item';
+	      this.gameOver.style.top = (0, _game.GET_HEIGHT)() / 20 * 2 + 'px';
+	      this.center(this.gameOver);
+	    }
+	  }, {
+	    key: 'setupScore',
+	    value: function setupScore() {
+	      this.scoreDiv.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.scoreDiv.innerHTML = 'YOUR SCORE: ' + this.score;
+	      this.scoreDiv.className = 'gui-item';
+	      this.scoreDiv.style.top = (0, _game.GET_HEIGHT)() / 20 * 6 + 'px';
+	      this.center(this.scoreDiv);
+	    }
+	  }, {
+	    key: 'setupPutYourName',
+	    value: function setupPutYourName() {
+	      this.putYourName.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.putYourName.innerHTML = 'TYPE A NICKNAME BELOW';
+	      this.putYourName.className = 'gui-item';
+	      this.putYourName.style.top = (0, _game.GET_HEIGHT)() / 20 * 9 + 'px';
+	      this.center(this.putYourName);
+	    }
+	  }, {
+	    key: 'setupNameInput',
+	    value: function setupNameInput() {
+	      this.nameInput.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.nameInput.className = 'gui-item name-input';
+	      this.nameInput.style.top = (0, _game.GET_HEIGHT)() / 20 * 12 + 'px';
+	      this.nameInput.maxLength = 10;
+	      this.center(this.nameInput);
+	    }
+	  }, {
+	    key: 'setupPressEnter',
+	    value: function setupPressEnter() {
+	      this.pressEnter.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	      this.pressEnter.innerHTML = 'PRESS ENTER TO GO BACK TO MENU';
+	      this.pressEnter.className = 'gui-item';
+	      this.pressEnter.style.top = (0, _game.GET_HEIGHT)() / 20 * 18 + 'px';
+	      this.center(this.pressEnter);
+	    }
+	  }, {
+	    key: 'center',
+	    value: function center(div) {
+	      div.style.left = (0, _game.GET_WIDTH)() / 2 - div.clientWidth / 2 + 'px';
+	    }
+	  }, {
+	    key: 'keyDown',
+	    value: function keyDown(_ref) {
+	      var code = _ref.code;
+	
+	      if (code === 'Enter') {
+	        this.destroy();
+	        this.game.gotoMenu();
+	      }
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      this.nameInput.focus();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(renderer) {
+	      renderer.render(this.scene, this.camera);
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {
+	      this.camera.aspect = (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)();
+	      this.camera.updateProjectionMatrix();
+	
+	      this.setupGameOver();
+	      this.setupScore();
+	      this.setupPutYourName();
+	      this.setupNameInput();
+	      this.setupPressEnter();
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      document.body.removeChild(this.gameOver);
+	      document.body.removeChild(this.scoreDiv);
+	      document.body.removeChild(this.putYourName);
+	      document.body.removeChild(this.nameInput);
+	      document.body.removeChild(this.pressEnter);
+	      document.removeEventListener('keydown', this.keyDownListener);
+	    }
+	  }]);
+	
+	  return GameOver;
+	}();
+	
+	exports.default = GameOver;
+
+/***/ },
+/* 303 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _three = __webpack_require__(300);
+	
+	var _game = __webpack_require__(299);
+	
+	var _player = __webpack_require__(304);
 	
 	var _player2 = _interopRequireDefault(_player);
 	
-	var _floor = __webpack_require__(304);
+	var _floor = __webpack_require__(305);
 	
 	var _floor2 = _interopRequireDefault(_floor);
 	
-	var _wall = __webpack_require__(305);
+	var _wall = __webpack_require__(306);
 	
 	var _wall2 = _interopRequireDefault(_wall);
 	
-	var _score = __webpack_require__(306);
+	var _score = __webpack_require__(307);
 	
 	var _score2 = _interopRequireDefault(_score);
 	
@@ -50381,7 +50544,7 @@
 	      this.wall.destroy();
 	      this.player.destroy();
 	      this.score.destroy();
-	      this.game.gameOver();
+	      this.game.gameOver(this.score);
 	    }
 	  }, {
 	    key: 'render',
@@ -50403,7 +50566,7 @@
 	exports.default = GamePlay;
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50731,7 +50894,7 @@
 	exports.default = Player;
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50807,7 +50970,7 @@
 	exports.default = Floor;
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50978,7 +51141,7 @@
 	exports.default = Wall;
 
 /***/ },
-/* 306 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

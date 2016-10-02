@@ -2,12 +2,13 @@
 
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import Menu from './screens/menu';
+import GameOver from './screens/gameover';
 import GamePlay from './screens/gameplay';
 
 class Game {
   constructor() {
-    this.screen = new Menu(this);
     this.renderer = this.createRenderer();
+    this.gotoMenu();
   }
 
   start() {
@@ -43,9 +44,12 @@ class Game {
     this.screen = new GamePlay(this);
   }
 
-  gameOver(score) {
-    // TODO gameover screen, for now go back to menu
+  gotoMenu() {
     this.screen = new Menu(this);
+  }
+
+  gameOver(score) {
+    this.screen = new GameOver(this, score.value);
   }
 }
 
