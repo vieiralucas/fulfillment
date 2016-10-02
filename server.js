@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const redis = require('redis');
 const bodyParser = require('body-parser');
