@@ -1,14 +1,20 @@
 'use strict';
 
+const url = require('url');
 const express = require('express');
 const redis = require('redis');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const client = redis.createClient({
-  host: process.env.REDIS_CLOUD_URL || '127.0.0.1',
-  port: 6379
-});
+let client;
+
+if (process.env.REDISCLOUD_URL) {
+    const redisCloud = url.parse(process.env.REDISCLOUD_URL);
+    client = redis.createClient(redisCloud.port, redisCloud.hostname);
+    client.auth(redisCloud.auth.split(':')[1]);
+} else {
+    client = redis.createClient();
+}
 
 client.on('error', err => {
   console.error(`Error connecting to redis: ${err}`);
