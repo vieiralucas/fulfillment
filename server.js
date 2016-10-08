@@ -9,11 +9,11 @@ const cors = require('cors');
 let client;
 
 if (process.env.REDISCLOUD_URL) {
-    const redisCloud = url.parse(process.env.REDISCLOUD_URL);
-    client = redis.createClient(redisCloud.port, redisCloud.hostname);
-    client.auth(redisCloud.auth.split(':')[1]);
+  const redisCloud = url.parse(process.env.REDISCLOUD_URL);
+  client = redis.createClient(redisCloud.port, redisCloud.hostname);
+  client.auth(redisCloud.auth.split(':')[1]);
 } else {
-    client = redis.createClient();
+  client = redis.createClient();
 }
 
 client.on('error', err => {
@@ -46,8 +46,8 @@ app.get('/highscores', cors(), (req, res) => {
   });
 });
 
+app.options('/highscore', cors());
 app.post('/highscore', cors(), (req, res) => {
-  console.log(req.body);
   client.zscore('highscores', req.body.nick, (err, score) => {
     if (err) {
       res.sendStatus(500);
@@ -67,7 +67,6 @@ app.post('/highscore', cors(), (req, res) => {
           return;
         }
 
-        console.log(code);
         res.json(req.body);
       });
     } else {
