@@ -130,6 +130,11 @@ class Menu {
         this.destroy();
         this.game.startGamePlay();
       }
+
+      if (this.selected === HALL_OF_FAME) {
+        this.destroy();
+        this.game.showHallOfFame();
+      }
     }
   }
 

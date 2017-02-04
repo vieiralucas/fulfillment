@@ -4,6 +4,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import Menu from './screens/menu';
 import GameOver from './screens/gameover';
 import GamePlay from './screens/gameplay';
+import HallOfFame from './screens/hall-of-fame';
 
 class Game {
   constructor() {
@@ -50,6 +51,10 @@ class Game {
 
   gameOver(score) {
     this.screen = new GameOver(this, score.value);
+  }
+
+  showHallOfFame() {
+    this.screen = new HallOfFame(this);
   }
 }
 

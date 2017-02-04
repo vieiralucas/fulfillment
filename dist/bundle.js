@@ -8218,9 +8218,13 @@
 	
 	var _gameover2 = _interopRequireDefault(_gameover);
 	
-	var _gameplay = __webpack_require__(303);
+	var _gameplay = __webpack_require__(304);
 	
 	var _gameplay2 = _interopRequireDefault(_gameplay);
+	
+	var _hallOfFame = __webpack_require__(309);
+	
+	var _hallOfFame2 = _interopRequireDefault(_hallOfFame);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -8282,6 +8286,11 @@
 	    key: 'gameOver',
 	    value: function gameOver(score) {
 	      this.screen = new _gameover2.default(this, score.value);
+	    }
+	  }, {
+	    key: 'showHallOfFame',
+	    value: function showHallOfFame() {
+	      this.screen = new _hallOfFame2.default(this);
 	    }
 	  }]);
 	
@@ -50194,6 +50203,11 @@
 	          this.destroy();
 	          this.game.startGamePlay();
 	        }
+	
+	        if (this.selected === HALL_OF_FAME) {
+	          this.destroy();
+	          this.game.showHallOfFame();
+	        }
 	      }
 	    }
 	  }, {
@@ -50262,14 +50276,20 @@
 	
 	var _game = __webpack_require__(299);
 	
+	var _highscoreService = __webpack_require__(303);
+	
+	var _highscoreService2 = _interopRequireDefault(_highscoreService);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var GameOver = function () {
 	  function GameOver(game, score) {
 	    _classCallCheck(this, GameOver);
 	
+	    this.highscoreService = new _highscoreService2.default();
 	    this.game = game;
-	    console.log(score);
 	    this.score = score;
 	
 	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
@@ -50355,11 +50375,15 @@
 	  }, {
 	    key: 'keyDown',
 	    value: function keyDown(_ref) {
+	      var _this = this;
+	
 	      var code = _ref.code;
 	
 	      if (code === 'Enter') {
-	        this.destroy();
-	        this.game.gotoMenu();
+	        this.highscoreService.post(this.nameInput.value, this.score).then(function () {
+	          _this.destroy();
+	          _this.game.gotoMenu();
+	        });
 	      }
 	    }
 	  }, {
@@ -50403,6 +50427,62 @@
 
 /***/ },
 /* 303 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var HighscoreService = function () {
+	  function HighscoreService() {
+	    _classCallCheck(this, HighscoreService);
+	
+	    this.host = '//evening-tundra-78969.herokuapp.com';
+	  }
+	
+	  _createClass(HighscoreService, [{
+	    key: 'list',
+	    value: function list() {
+	      console.log(this.host);
+	      return fetch(this.host + '/highscores').then(function (res) {
+	        return res.json();
+	      });
+	    }
+	  }, {
+	    key: 'post',
+	    value: function post(nick, score) {
+	      var highscore = {
+	        nick: nick,
+	        score: score
+	      };
+	      var fetchOptions = {
+	        method: 'POST',
+	        headers: {
+	          'Accept': 'application/json',
+	          'Content-Type': 'application/json'
+	        },
+	        body: JSON.stringify(highscore)
+	      };
+	
+	      return fetch(this.host + '/highscore', fetchOptions).then(function (res) {
+	        return res.json();
+	      });
+	    }
+	  }]);
+	
+	  return HighscoreService;
+	}();
+	
+	exports.default = HighscoreService;
+
+/***/ },
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50417,19 +50497,19 @@
 	
 	var _game = __webpack_require__(299);
 	
-	var _player = __webpack_require__(304);
+	var _player = __webpack_require__(305);
 	
 	var _player2 = _interopRequireDefault(_player);
 	
-	var _floor = __webpack_require__(305);
+	var _floor = __webpack_require__(306);
 	
 	var _floor2 = _interopRequireDefault(_floor);
 	
-	var _wall = __webpack_require__(306);
+	var _wall = __webpack_require__(307);
 	
 	var _wall2 = _interopRequireDefault(_wall);
 	
-	var _score = __webpack_require__(307);
+	var _score = __webpack_require__(308);
 	
 	var _score2 = _interopRequireDefault(_score);
 	
@@ -50566,7 +50646,7 @@
 	exports.default = GamePlay;
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50894,7 +50974,7 @@
 	exports.default = Player;
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50970,7 +51050,7 @@
 	exports.default = Floor;
 
 /***/ },
-/* 306 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51141,7 +51221,7 @@
 	exports.default = Wall;
 
 /***/ },
-/* 307 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -51204,6 +51284,135 @@
 	}();
 	
 	exports.default = Score;
+
+/***/ },
+/* 309 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _three = __webpack_require__(300);
+	
+	var _game = __webpack_require__(299);
+	
+	var _highscoreService = __webpack_require__(303);
+	
+	var _highscoreService2 = _interopRequireDefault(_highscoreService);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var HallOfFame = function () {
+	  function HallOfFame(game) {
+	    var _this = this;
+	
+	    _classCallCheck(this, HallOfFame);
+	
+	    this.highscoreService = new _highscoreService2.default();
+	    this.game = game;
+	
+	    this.camera = new _three.PerspectiveCamera(70, (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)(), 1, 1000);
+	    this.camera.position.y = 100;
+	    this.camera.position.z = 400;
+	
+	    this.scene = new _three.Scene();
+	
+	    this.container = document.createElement('div');
+	    document.body.appendChild(this.container);
+	
+	    this.highscoreService.list().then(function (highscores) {
+	      _this.highscores = highscores;
+	      _this.setupHighscores();
+	    });
+	
+	    this.keyDownListener = this.keyDown.bind(this);
+	    document.addEventListener('keydown', this.keyDownListener);
+	  }
+	
+	  _createClass(HallOfFame, [{
+	    key: 'setupHighscores',
+	    value: function setupHighscores() {
+	      var _this2 = this;
+	
+	      this.container.innerHTML = '';
+	      this.container.className = 'gui-item';
+	      this.container.style.width = (0, _game.GET_WIDTH)() / 1.5 + 'px';
+	      this.container.style.top = (0, _game.GET_HEIGHT)() / 12 * 1 + 'px';
+	      this.container.style.left = (0, _game.GET_WIDTH)() / 6 + 'px';
+	      this.container.style.fontSize = (0, _game.GET_HEIGHT)() / 20 + 'px';
+	
+	      this.highscores.forEach(function (highscore) {
+	        var nick = highscore[0];
+	        var score = highscore[1];
+	
+	        var highscoreContainer = document.createElement('div');
+	        highscoreContainer.style.clear = 'both';
+	
+	        var nickP = document.createElement('p');
+	        nickP.style.marginTop = '0px';
+	        nickP.style.marginBottom = (0, _game.GET_HEIGHT)() / 24 + 'px';
+	        nickP.style.width = '50%';
+	        nickP.style.float = 'left';
+	        nickP.innerHTML = nick;
+	
+	        var scoreP = document.createElement('p');
+	        scoreP.style.marginTop = nickP.style.marginTop;
+	        scoreP.style.marginBottom = nickP.style.marginBottom;
+	        scoreP.style.width = '50%';
+	        scoreP.style.float = 'left';
+	        scoreP.style.textAlign = 'right';
+	        scoreP.innerHTML = score;
+	
+	        highscoreContainer.appendChild(nickP);
+	        highscoreContainer.appendChild(scoreP);
+	
+	        _this2.container.appendChild(highscoreContainer);
+	      });
+	    }
+	  }, {
+	    key: 'keyDown',
+	    value: function keyDown(_ref) {
+	      var code = _ref.code;
+	
+	      if (code === 'ArrowDown') {}
+	
+	      if (code === 'ArrowUp') {}
+	
+	      if (code === 'Space' || code === 'Enter') {}
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {}
+	  }, {
+	    key: 'render',
+	    value: function render(renderer) {
+	      renderer.render(this.scene, this.camera);
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {
+	      this.camera.aspect = (0, _game.GET_WIDTH)() / (0, _game.GET_HEIGHT)();
+	      this.camera.updateProjectionMatrix();
+	      this.setupHighscores();
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      document.removeEventListener('keydown', this.keyDownListener);
+	    }
+	  }]);
+	
+	  return HallOfFame;
+	}();
+	
+	exports.default = HallOfFame;
 
 /***/ }
 /******/ ]);

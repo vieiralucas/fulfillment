@@ -2,11 +2,12 @@
 
 import { PerspectiveCamera, Scene } from 'three';
 import { GET_WIDTH, GET_HEIGHT } from '../game';
+import HighscoreService from '../highscore-service';
 
 class GameOver {
   constructor(game, score) {
+    this.highscoreService = new HighscoreService();
     this.game = game;
-    console.log(score);
     this.score = score;
 
     this.camera = new PerspectiveCamera(70, GET_WIDTH() / GET_HEIGHT(), 1, 1000);
@@ -83,10 +84,13 @@ class GameOver {
     div.style.left = `${GET_WIDTH() / 2 - div.clientWidth / 2}px`
   }
 
-  keyDown({code}) {
+  keyDown({ code }) {
     if (code === 'Enter') {
-      this.destroy();
-      this.game.gotoMenu();
+      this.highscoreService.post(this.nameInput.value, this.score)
+        .then(() => {
+          this.destroy();
+          this.game.gotoMenu();
+        });
     }
   }
 
